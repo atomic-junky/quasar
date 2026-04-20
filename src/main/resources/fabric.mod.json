@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "quasar",
+  "version": "${version}",
+  "name": "Quasar",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/quasar/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.childwax.quasar.Quasar"
+    ]
+  },
+  "mixins": [
+    "quasar.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.2",
+    "minecraft": ">=26.1",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
