@@ -58,7 +58,7 @@ And you can set up portals are invisible zone that send player to another server
 /quasar portal remove <id>
 /quasar portal list
 /quasar portal info <id>
-/quasar edit <uuid> server <server>
-/quasar edit <uuid> pos1 <pos>
-/quasar edit <uuid> pos2 <pos>
+/quasar portal edit <uuid> server <server>
+/quasar portal edit <uuid> pos1 <pos>
+/quasar portal edit <uuid> pos2 <pos>
 ```
