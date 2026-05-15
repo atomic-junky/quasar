@@ -144,27 +144,28 @@ public class QuasarPortalCommand {
             return 0;
         }
 
-        source.sendSuccess(() -> Component.literal("§6=== Portals (" + all.size() + ") ==="), false);
+        source.sendSuccess(() -> Component.literal("§8┌── §6Portals §8(" + all.size() + ")"), false);
 
         all.forEach((id, entry) -> {
             String pos1 = formatVec(entry.pos1().toVec3());
             String pos2 = formatVec(entry.pos2().toVec3());
 
-            MutableComponent line = Component.literal("§7• §6" + entry.server() + " §8[" + id + "] §7" + pos1 + " → " + pos2 + " ")
+            MutableComponent line = Component.literal("§8│ §7• " + entry.server() + " §8[" + id + "] §7" + pos1 + " → " + pos2 + " ")
                     .append(Component.literal("§a[info]")
                             .withStyle(s -> s
-                                    .withClickEvent(new ClickEvent.RunCommand("/proxyportal info " + id))
+                                    .withClickEvent(new ClickEvent.SuggestCommand("/quasar portal info " + id))
                                     .withHoverEvent(new HoverEvent.ShowText(Component.literal("View details")))
                             )
                     )
-                    .append(Component.literal(" §c[kill]")
+                    .append(Component.literal(" §c[remove]")
                             .withStyle(s -> s
-                                    .withClickEvent(new ClickEvent.SuggestCommand("/proxyportal kill " + id))
+                                    .withClickEvent(new ClickEvent.SuggestCommand("/quasar portal remove " + id))
                                     .withHoverEvent(new HoverEvent.ShowText(Component.literal("Remove this portal")))
                             )
                     );
 
             source.sendSuccess(() -> line, false);
+            source.sendSuccess(() -> Component.literal("§8└──────────────"), false);
         });
 
         return all.size();
@@ -187,9 +188,9 @@ public class QuasarPortalCommand {
         String pos2 = formatVec(entry.pos2().toVec3());
 
         source.sendSuccess(() -> Component.literal("§8┌── §6Portal §8[" + id + "]"), false);
-        source.sendSuccess(() -> buildEditableLine("Server", entry.server(), "/proxyportal edit " + id + " server "), false);
-        source.sendSuccess(() -> buildEditableLine("Pos1",   pos1,          "/proxyportal edit " + id + " pos1 " + pos1), false);
-        source.sendSuccess(() -> buildEditableLine("Pos2",   pos2,          "/proxyportal edit " + id + " pos2 " + pos2), false);
+        source.sendSuccess(() -> buildEditableLine("Server", entry.server(), "/quasar portal edit " + id + " server "), false);
+        source.sendSuccess(() -> buildEditableLine("Pos1",   pos1,          "/quasar portal edit " + id + " pos1 " + pos1), false);
+        source.sendSuccess(() -> buildEditableLine("Pos2",   pos2,          "/quasar portal edit " + id + " pos2 " + pos2), false);
         source.sendSuccess(() -> Component.literal("§8└──────────────"), false);
     }
 
@@ -231,6 +232,6 @@ public class QuasarPortalCommand {
     }
 
     private static String formatVec(Vec3 v) {
-        return String.format("%.1f %.1f %.1f", v.x, v.y, v.z);
+        return String.format("%.1f/%.1f/%.1f", v.x, v.y, v.z);
     }
 }

@@ -2,16 +2,13 @@ package com.childwax.quasar.commands;
 
 import com.childwax.quasar.Quasar;
 import com.childwax.quasar.config.Config;
-import com.mojang.logging.LogUtils;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
-import org.slf4j.Logger;
 
 import java.util.Map;
 
 public class ServerSwitchingCommand {
-    private static final Logger logger = LogUtils.getLogger();
 
     public static void register() {
         Config config = Config.load();
@@ -33,7 +30,5 @@ public class ServerSwitchingCommand {
                             })
             );
         });
-
-        logger.info("ServerSwitchingCommand ({}) registered.", commandName);
     }
 }

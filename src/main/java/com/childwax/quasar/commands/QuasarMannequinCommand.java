@@ -30,6 +30,7 @@ import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.UUID;
@@ -157,7 +158,7 @@ public class QuasarMannequinCommand {
         UseEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
             if (level.isClientSide() || hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
 
-            String serverName = MannequinRegistry.get(entity.getUUID());
+            String serverName = MannequinRegistry.getServerName(entity.getUUID());
             if (serverName != null) {
                 Quasar.sendToServer((ServerPlayer) player, serverName);
                 return InteractionResult.SUCCESS;
@@ -171,13 +172,8 @@ public class QuasarMannequinCommand {
             nbt.putBoolean("Invulnerable", true);
             nbt.putBoolean("immovable", true);
 
-            Holder.Reference<EntityType<?>> holder = EntityType.MANNEQUIN.builtInRegistryHolder();
+            Holder.Reference<@NotNull EntityType<?>> holder = EntityType.MANNEQUIN.builtInRegistryHolder();
             Entity entity = SummonCommand.createEntity(source, holder, pos, nbt, true);
-
-            if (entity == null) {
-                source.sendFailure(Component.literal("Failed to spawn mannequin"));
-                return 0;
-            }
 
             Display.TextDisplay textDisplay = new Display.TextDisplay(EntityType.TEXT_DISPLAY, source.getLevel());
             textDisplay.setPos(pos.x, pos.y + 2.2, pos.z);
@@ -211,7 +207,7 @@ public class QuasarMannequinCommand {
 
         MannequinRegistry.remove(entity.getUUID());
         entity.discard();
-        source.sendSuccess(() -> Component.literal("ProxyMannequin removed"), true);
+        source.sendSuccess(() -> Component.literal("Quasar Mannequin removed"), true);
         return 1;
     }
 
@@ -219,42 +215,42 @@ public class QuasarMannequinCommand {
         Map<String, MannequinRegistry.Entry> all = MannequinRegistry.getAll();
 
         if (all.isEmpty()) {
-            source.sendSuccess(() -> Component.literal("No ProxyMannequins registered"), false);
+            source.sendSuccess(() -> Component.literal("No Quasar Mannequin registered"), false);
             return 0;
         }
 
-        source.sendSuccess(() -> Component.literal("§6=== ProxyMannequins (" + all.size() + ") ==="), false);
+        source.sendSuccess(() -> Component.literal("§8┌── §6Mannequins §8(" + all.size() + ")"), false);
 
         all.forEach((uuidStr, entry) -> {
             UUID uuid = UUID.fromString(uuidStr);
             Entity entity = source.getLevel().getEntity(uuid);
 
             String pos = entity != null
-                    ? String.format("%.1f / %.1f / %.1f", entity.getX(), entity.getY(), entity.getZ())
+                    ? String.format("%.1f/%.1f/%.1f", entity.getX(), entity.getY(), entity.getZ())
                     : "unloaded";
 
-            MutableComponent line = Component.literal("§7• §6" + entry.server() + " §8[" + uuidStr.substring(0, 8) + "…] §7" + pos + " ")
+            MutableComponent line = Component.literal("§8│ §7• " + entry.server() + " §8[" + uuidStr.substring(0, 8) + "…] §7" + pos + " ")
                     .append(Component.literal("§a[info]")
                             .withStyle(s -> s
-                                    .withClickEvent(new ClickEvent.RunCommand("/proxymannequin info " + uuidStr))
+                                    .withClickEvent(new ClickEvent.SuggestCommand("/quasar mannequin info " + uuidStr))
                                     .withHoverEvent(new HoverEvent.ShowText(Component.literal("View details")))
                             )
                     )
                     .append(Component.literal(" §c[kill]")
                             .withStyle(s -> s
-                                    .withClickEvent(new ClickEvent.SuggestCommand("/proxymannequin kill " + uuidStr))
+                                    .withClickEvent(new ClickEvent.SuggestCommand("/quasar mannequin kill " + uuidStr))
                                     .withHoverEvent(new HoverEvent.ShowText(Component.literal("Remove this mannequin")))
                             )
                     );
-
             source.sendSuccess(() -> line, false);
         });
+        source.sendSuccess(() -> Component.literal("§8└──────────────"), false);
 
         return all.size();
     }
 
     private static int info(CommandSourceStack source, Entity entity) {
-        if (MannequinRegistry.getEntry(entity.getUUID()) == null) {
+        if (MannequinRegistry.get(entity.getUUID()) == null) {
             source.sendFailure(notAMannequin());
             return 0;
         }
@@ -263,7 +259,7 @@ public class QuasarMannequinCommand {
     }
 
     private static void sendInfo(CommandSourceStack source, UUID uuid) {
-        MannequinRegistry.Entry entry = MannequinRegistry.getEntry(uuid);
+        MannequinRegistry.Entry entry = MannequinRegistry.get(uuid);
         Entity entity = source.getLevel().getEntity(uuid);
         if (entry == null || entity == null) return;
 
@@ -271,11 +267,11 @@ public class QuasarMannequinCommand {
         String pos = String.format("%.2f %.2f %.2f", entity.getX(), entity.getY(), entity.getZ());
         String yaw = String.format("%.1f", entity.getYRot());
 
-        source.sendSuccess(() -> Component.literal("§8┌── §6ProxyMannequin §8[" + uuidStr.substring(0, 8) + "…]"), false);
-        source.sendSuccess(() -> buildEditableLine("Server", entry.server(), "/proxymannequin edit " + uuidStr + " server "), false);
-        source.sendSuccess(() -> buildEditableLine("Position", pos, "/proxymannequin edit " + uuidStr + " pos " + pos), false);
-        source.sendSuccess(() -> buildEditableLine("Yaw", yaw + "°", "/proxymannequin edit " + uuidStr + " yaw "), false);
-        source.sendSuccess(() -> buildEditableLine("NBT", "{...}", "/proxymannequin edit " + uuidStr + " nbt "), false);
+        source.sendSuccess(() -> Component.literal("§8┌── §6Mannequin §8[" + uuidStr.substring(0, 8) + "…]"), false);
+        source.sendSuccess(() -> buildEditableLine("Server", entry.server(), "/quasar mannequin edit " + uuidStr + " server "), false);
+        source.sendSuccess(() -> buildEditableLine("Position", pos, "/quasar mannequin edit " + uuidStr + " pos " + pos), false);
+        source.sendSuccess(() -> buildEditableLine("Yaw", yaw + "°", "/quasar mannequin edit " + uuidStr + " yaw "), false);
+        source.sendSuccess(() -> buildEditableLine("NBT", "{...}", "/quasar mannequin edit " + uuidStr + " nbt "), false);
         source.sendSuccess(() -> Component.literal("§8└──────────────"), false);
     }
 
@@ -287,7 +283,7 @@ public class QuasarMannequinCommand {
             throw EntityArgument.NO_ENTITIES_FOUND.create();
         }
 
-        if (MannequinRegistry.getEntry(uuid) == null) {
+        if (MannequinRegistry.get(uuid) == null) {
             throw EntityArgument.NO_ENTITIES_FOUND.create();
         }
 
@@ -310,7 +306,7 @@ public class QuasarMannequinCommand {
     }
 
     private static int editServer(CommandSourceStack source, Entity entity, String newServer) {
-        MannequinRegistry.Entry entry = MannequinRegistry.getEntry(entity.getUUID());
+        MannequinRegistry.Entry entry = MannequinRegistry.get(entity.getUUID());
         if (entry == null) { source.sendFailure(notAMannequin()); return 0; }
 
         MannequinRegistry.register(entity.getUUID(), newServer, MannequinRegistry.getTextDisplay(entity.getUUID()));
@@ -360,6 +356,6 @@ public class QuasarMannequinCommand {
     }
 
     private static Component notAMannequin() {
-        return Component.literal("This entity is not a ProxyMannequin");
+        return Component.literal("This entity is not a Quasar Mannequin");
     }
 }
